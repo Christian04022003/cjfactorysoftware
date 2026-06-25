@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TTNAG Gantt Profesional · Demo</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #F0F2F5;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      color: #1F2937;
+    }
+
+    /* ── HEADER ─────────────────────────────────────── */
+    #header {
+      background: #1B2539;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      height: 56px;
+      flex-shrink: 0;
+      gap: 16px;
+      z-index: 50;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .back-btn {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: transparent;
+      color: #94A3B8;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+
+    .project-logo {
+      width: 34px; height: 34px;
+      background: #6366F1;
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 900; color: white;
+      flex-shrink: 0;
+    }
+
+    .project-meta { display: flex; flex-direction: column; }
+    .project-name {
+      font-size: 15px; font-weight: 800; color: white; letter-spacing: -0.3px;
+    }
+    .project-sub {
+      font-size: 9px; font-weight: 700; color: #6366F1;
+      text-transform: uppercase; letter-spacing: 0.25em;
+    }
+
+    .header-tabs {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 10px;
+      padding: 4px;
+      position: absolute;
+      left: 50%; transform: translateX(-50%);
+    }
+
+    .header-tab {
+      padding: 6px 14px;
+      border-radius: 7px;
+      border: none;
+      background: transparent;
+      color: #94A3B8;
+      font-size: 11px; font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      display: flex; 
+      align-items: center;
+      gap: 5px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .header-tab.active {
+      background: rgba(255,255,255,0.12);
+      color: white;
+    }
+    .header-tab:hover:not(.active) { color: #CBD5E1; }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hbtn {
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: none;
+      font-size: 11px; font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      transition: all 0.15s;
+    }
+    .hbtn-ghost {
+      background: rgba(255,255,255,0.08);
+      color: #CBD5E1;
+    }
+    .hbtn-ghost:hover { background: rgba(255,255,255,0.15); color: white; }
+    .hbtn-green {
+      background: #22C55E;
+      color: #0F1F10;
+    }
+    .hbtn-green:hover { background: #16A34A; }
+    .hbtn-purple {
+      background: #6366F1;
+      color: white;
+    }
+    .hbtn-purple:hover { background: #4F46E5; }
+
+    .avatar {
+      width: 32px; height: 32px;
+      background: #6366F1;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800; color: white;
+    }
+
+    /* ── TOOLBAR ─────────────────────────────────────── */
+    #toolbar {
+      background: white;
+      border-bottom: 1px solid #E5E7EB;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 16px;
+      height: 46px;
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
+
+    .tbtn {
+      padding: 5px 12px;
+      border-radius: 7px;
+      border: 1px solid transparent;
+      font-size: 11px; font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      display: flex; align-items: center; gap: 5px;
+      transition: all 0.15s;
+    }
+    .tbtn-primary { background: #1B2539; color: white; border-color: #1B2539; }
+    .tbtn-primary:hover { background: #0F1929; }
+    .tbtn-milestone { background: #FEF3C7; color: #92400E; border-color: #FDE68A; }
+    .tbtn-milestone:hover { background: #FDE68A; }
+    .tbtn-outline { background: white; color: #374151; border-color: #E5E7EB; }
+    .tbtn-outline:hover { border-color: #6366F1; color: #6366F1; }
+    .tbtn-critical { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
+    .tbtn-critical.active { background: #DC2626; color: white; }
+    .tbtn-save { background: #EEF2FF; color: #4F46E5; border-color: #C7D2FE; }
+    .tbtn-save:hover { background: #6366F1; color: white; }
+
+    .tb-divider { width: 1px; height: 20px; background: #E5E7EB; flex-shrink: 0; }
+
+    .tb-right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+
+    .view-switcher {
+      display: flex;
+      background: #F1F5F9;
+      border-radius: 7px;
+      padding: 2px;
+      gap: 2px;
+    }
+    .vsw-btn {
+      padding: 3px 10px;
+      border-radius: 5px;
+      border: none;
+      font-size: 9px; font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      background: transparent;
+      color: #9CA3AF;
+      transition: all 0.15s;
+    }
+    .vsw-btn.active {
+      background: white;
+      color: #6366F1;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .task-count {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 10px; font-weight: 700; color: #6B7280;
+    }
+
+    /* ── ZOOM BAR ─────────────────────────────────────── */
+    #zoombar {
+      background: #FAFAFA;
+      border-bottom: 1px solid #F0F2F5;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 16px;
+      height: 34px;
+      flex-shrink: 0;
+    }
+
+    .zoom-btns { display: flex; align-items: center; gap: 4px; }
+    .zoom-btn {
+      width: 22px; height: 22px;
+      border-radius: 5px;
+      border: 1px solid #E5E7EB;
+      background: white;
+      color: #374151;
+      font-size: 12px; font-weight: 700;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .zoom-btn:hover { border-color: #6366F1; color: #6366F1; }
+    .zoom-val { font-size: 11px; font-weight: 700; color: #374151; min-width: 36px; text-align: center; }
+
+    .density-group { display: flex; align-items: center; gap: 8px; }
+    .density-btn {
+      font-size: 10px; font-weight: 700; color: #9CA3AF;
+      background: none; border: none; cursor: pointer;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      padding: 2px 0;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .density-btn.active { color: #6366F1; border-color: #6366F1; }
+
+    .zb-right { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 700; color: #9CA3AF; }
+    .task-badge {
+      display: flex; align-items: center; gap: 4px;
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-size: 10px; font-weight: 700;
+    }
+    .task-badge-gray { background: #F1F5F9; color: #6B7280; }
+    .task-badge-check { background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; }
+
+    /* ── MAIN SPLIT ─────────────────────────────────────── */
+    #main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    /* ── LEFT PANEL ─────────────────────────────────────── */
+    #left-panel {
+      width: 520px;
+      min-width: 280px;
+      display: flex;
+      flex-direction: column;
+      background: white;
+      border-right: 2px solid #E5E7EB;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .table-header {
+      display: flex;
+      background: #F8FAFC;
+      border-bottom: 1px solid #E2E8F0;
+      height: 34px;
+      flex-shrink: 0;
+    }
+
+    .th-cell {
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      font-size: 9px;
+      font-weight: 800;
+      color: #64748B;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-right: 1px solid #E5E7EB;
+      gap: 5px;
+      flex-shrink: 0;
+      user-select: none;
+    }
+    .th-cell .drag-icon { color: #CBD5E1; font-size: 10px; cursor: grab; }
+
+    .table-body {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    .table-body::-webkit-scrollbar { width: 5px; }
+    .table-body::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 3px; }
+
+    .task-row {
+      display: flex;
+      align-items: stretch;
+      height: 38px;
+      border-bottom: 1px solid #F1F5F9;
+      transition: background 0.1s;
+      cursor: pointer;
+    }
+    .task-row:hover { background: #F8FAFC; }
+    .task-row.selected { background: #EEF2FF; }
+    .task-row.critical { background: #FFF5F5; }
+    .task-row.critical.selected { background: #FEE2E2; }
+
+    .td-cell {
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      border-right: 1px solid #F1F5F9;
+      font-size: 12px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .task-name-cell {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      overflow: hidden;
+    }
+
+    .collapse-arrow {
+      width: 14px; height: 14px;
+      border-radius: 3px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: #6366F1;
+      font-size: 8px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: transform 0.15s;
+    }
+    .collapse-arrow.open { transform: rotate(90deg); }
+
+    .dot { width: 5px; height: 5px; border-radius: 50%; background: #D1D5DB; flex-shrink: 0; }
+    .diamond { font-size: 10px; flex-shrink: 0; }
+
+    .cr-badge {
+      font-size: 7px; font-weight: 800; color: #DC2626;
+      background: #FEF2F2; border: 1px solid #FECACA;
+      border-radius: 3px; padding: 1px 3px;
+      flex-shrink: 0;
+    }
+
+    .task-name-text {
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      flex: 1;
+    }
+    .task-name-text.parent { font-weight: 700; color: #111827; }
+    .task-name-text.normal { font-weight: 400; color: #374151; }
+    .task-name-text.critical { color: #991B1B; }
+
+    .progress-cell { font-weight: 700; }
+    .prog-complete { color: #059669; }
+    .prog-partial { color: #374151; }
+    .prog-zero { color: #9CA3AF; }
+
+    .slack-cell { font-weight: 700; }
+    .slack-zero { color: #DC2626; }
+    .slack-pos { color: #10B981; }
+
+    /* ── RESIZER ─────────────────────────────────────── */
+    #resizer {
+      width: 5px;
+      background: #E5E7EB;
+      cursor: col-resize;
+      flex-shrink: 0;
+      transition: background 0.15s;
+      position: relative;
+      z-index: 5;
+    }
+    #resizer:hover, #resizer.active { background: #6366F1; }
+
+    /* ── RIGHT PANEL (GANTT) ─────────────────────────── */
+    #right-panel {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      background: white;
+      min-width: 0;
+    }
+
+    #gantt-scroll {
+      width: 100%; height: 100%;
+      overflow: auto;
+      position: relative;
+    }
+    #gantt-scroll::-webkit-scrollbar { height: 5px; width: 5px; }
+    #gantt-scroll::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 3px; }
+
+    /* Gantt header sticky */
+    #gantt-header-sticky {
+      position: sticky;
+      top: 0;
+      left: 0;
+      z-index: 10;
+      background: #F8FAFC;
+      border-bottom: 1px solid #D1D5DB;
+      pointer-events: none;
+    }
+
+    #gantt-svg { display: block; }
+
+    /* ── EMPTY STATE ─────────────────────────────────── */
+    #empty-state {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      pointer-events: none;
+    }
+    .empty-icon { font-size: 40px; opacity: 0.2; margin-bottom: 10px; }
+    .empty-text { font-size: 11px; font-weight: 800; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.1em; }
+    .empty-sub { font-size: 11px; color: #D1D5DB; margin-top: 4px; }
+
+    /* ── DEMO BADGE ─────────────────────────────────────── */
+    #demo-badge {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      background: #1B2539;
+      color: #94A3B8;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 9px;
+      border: 1px solid rgba(255,255,255,0.1);
+      z-index: 100;
+      display: flex; align-items: center; gap: 6px;
+    }
+    #demo-badge .dot-live {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #22C55E;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* ── TOOLTIP ─────────────────────────────────────── */
+    #tooltip {
+      position: fixed;
+      display: none;
+      background: #1E293B;
+      color: white;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 11px;
+      font-weight: 500;
+      line-height: 1.6;
+      min-width: 200px;
+      max-width: 280px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+      pointer-events: none;
+      z-index: 9999;
+    }
+    .tt-title {
+      font-weight: 700;
+      font-size: 12px;
+      color: #E2E8F0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 6px;
+      margin-bottom: 6px;
+    }
+    .tt-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 2px 10px;
+      color: #94A3B8;
+    }
+    .tt-val { color: #E2E8F0; }
+    .tt-cr { color: #F87171; font-weight: 700; }
+    .tt-done { color: #34D399; font-weight: 700; }
+
+    /* ── SCROLLBAR sync ─────────────────────────────── */
+    .sync-scroll { overflow-y: auto; }
+
+    /* ── FILTER INPUT ───────────────────────────────── */
+    .filter-input {
+      padding: 4px 10px;
+      border: 1px solid #E5E7EB;
+      border-radius: 7px;
+      font-size: 11px;
+      color: #374151;
+      outline: none;
+      width: 160px;
+      transition: border-color 0.15s;
+    }
+    .filter-input:focus { border-color: #6366F1; }
+    .filter-input::placeholder { color: #9CA3AF; }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ──────────────────────────────────────────── -->
+<div id="header">
+  <div class="header-left">
+    <button class="back-btn" onclick="window.close()" title="Cerrar demo">←</button>
+    <div class="project-logo">G</div>
+    <div class="project-meta">
+      <input class="project-name" id="proj-name-input"
+        style="background:transparent;border:none;border-bottom:1px solid transparent;color:white;font-size:15px;font-weight:800;letter-spacing:-0.3px;outline:none;font-family:inherit;width:220px;transition:border-color 0.15s;"
+        value="Planta Industrial · Coatzacoalcos 2025"
+        onfocus="this.style.borderBottomColor='rgba(255,255,255,0.3)'"
+        onblur="this.style.borderBottomColor='transparent'"
+      />
+      <span class="project-sub">ID: DEMO-001 · Moneda: MXN</span>
+    </div>
+  </div>
+
+  <div class="header-tabs">
+    <button class="header-tab active">📊 Cronograma</button>
+    <button class="header-tab">📅 Calendarios</button>
+    <button class="header-tab">👥 Recursos</button>
+  </div>
+
+  <div class="header-right">
+    <button class="hbtn hbtn-ghost" title="Expandir pantalla completa" onclick="toggleFullscreen()">⛶</button>
+    <button class="hbtn hbtn-green" id="csv-btn">⬇ CSV</button>
+    <button class="hbtn hbtn-purple">🔗 Compartir</button>
+    <div class="avatar">CH</div>
+  </div>
+</div>
+
+<!-- ── TOOLBAR ──────────────────────────────────────────── -->
+<div id="toolbar">
+  <button class="tbtn tbtn-primary" onclick="addTask()">+ TAREA</button>
+  <button class="tbtn tbtn-milestone" onclick="addMilestone()">⚑ HITO</button>
+  <button class="tbtn tbtn-outline" onclick="addColumn()">+ COL</button>
+  <div class="tb-divider"></div>
+  <button class="tbtn tbtn-outline" title="Sangría izquierda">⇤</button>
+  <button class="tbtn tbtn-outline" title="Sangría derecha">⇥</button>
+  <button class="tbtn tbtn-outline" title="Cortar">✂</button>
+  <button class="tbtn tbtn-outline" title="Copiar">⎘</button>
+  <button class="tbtn tbtn-outline" title="Eliminar">🗑</button>
+  <div class="tb-divider"></div>
+  <button class="tbtn tbtn-outline">👁 COLUMNAS</button>
+  <button class="tbtn tbtn-critical" id="critical-btn" onclick="toggleCritical()">⬦ CRÍTICA</button>
+  <button class="tbtn tbtn-save" onclick="saveBaseline()">💾 GUARDAR BL</button>
+  <button class="tbtn tbtn-outline">⚙ PROPS</button>
+  <input class="filter-input" placeholder="🔍 Filtrar tareas..." id="filter-input" oninput="filterTasks(this.value)">
+
+  <div class="tb-right">
+    <div class="view-switcher">
+      <button class="vsw-btn" onclick="setView('DÍA',this)">DÍA</button>
+      <button class="vsw-btn" onclick="setView('SEM',this)">SEM</button>
+      <button class="vsw-btn active" onclick="setView('MES',this)">MES</button>
+      <button class="vsw-btn" onclick="setView('TRIM',this)">TRIM</button>
+      <button class="vsw-btn" onclick="setView('AÑO',this)">AÑO</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── ZOOM BAR ──────────────────────────────────────────── -->
+<div id="zoombar">
+  <div class="zoom-btns">
+    <button class="zoom-btn" onclick="changeZoom(-10)">−</button>
+    <span class="zoom-val" id="zoom-display">100%</span>
+    <button class="zoom-btn" onclick="changeZoom(10)">+</button>
+  </div>
+  <div class="density-group">
+    <button class="density-btn" onclick="setDensity('compact',this)">COMPACTO</button>
+    <button class="density-btn active" onclick="setDensity('normal',this)">NORMAL</button>
+    <button class="density-btn" onclick="setDensity('loose',this)">HOLGADO</button>
+  </div>
+  <div class="zb-right">
+    <span class="task-badge task-badge-gray">↑ <span id="task-count-badge">13</span> tareas</span>
+    <span class="task-badge task-badge-check">✓ <span id="done-count-badge">4</span></span>
+  </div>
+</div>
+
+<!-- ── MAIN ──────────────────────────────────────────────── -->
+<div id="main">
+
+  <!-- LEFT -->
+  <div id="left-panel">
+
+    <!-- Table header -->
+    <div class="table-header">
+      <div class="th-cell" style="width:30px;justify-content:center;">#</div>
+      <div class="th-cell" style="flex:1;min-width:0;"><span class="drag-icon">::</span> Tarea</div>
+      <div class="th-cell" style="width:80px;"><span class="drag-icon">::</span> Duración (d)</div>
+      <div class="th-cell" style="width:92px;"><span class="drag-icon">::</span> Inicio Prog.</div>
+      <div class="th-cell" style="width:90px;"><span class="drag-icon">::</span> Fin Prog.</div>
+      <div class="th-cell" style="width:38px;">%</div>
+    </div>
+
+    <!-- Table body -->
+    <div class="table-body" id="table-body" onscroll="syncScroll('table',this)"></div>
+  </div>
+
+  <!-- RESIZER -->
+  <div id="resizer"></div>
+
+  <!-- RIGHT: GANTT -->
+  <div id="right-panel">
+    <div id="gantt-scroll" onscroll="syncScroll('gantt',this)">
+      <!-- SVG will be injected here -->
+    </div>
+    <div id="empty-state" style="display:none;">
+      <div class="empty-icon">🏗️</div>
+      <div class="empty-text">El cronograma está vacío</div>
+      <div class="empty-sub">Haz clic en + TAREA para comenzar</div>
+    </div>
+  </div>
+</div>
+
+<!-- TOOLTIP -->
+<div id="tooltip">
+  <div class="tt-title" id="tt-name"></div>
+  <div class="tt-grid" id="tt-grid"></div>
+</div>
+
+<!-- DEMO BADGE -->
+<div id="demo-badge">
+  <div class="dot-live"></div>
+  Vista Demo · Solo lectura
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════════════════
+const TODAY = '2026-06-22';
+
+let tasks = [
+  { id:1,  wbs:'1',   name:'Diseño y Planificación',    start:'2026-01-06', end:'2026-02-28', prog:100, isParent:true, depth:0, isCritical:false },
+  { id:2,  wbs:'1.1', name:'Levantamiento topográfico', start:'2026-01-06', end:'2026-01-17', prog:100, isParent:false, depth:1, isCritical:false, parentId:1 },
+  { id:3,  wbs:'1.2', name:'Diseño arquitectónico',     start:'2026-01-20', end:'2026-02-07', prog:100, isParent:false, depth:1, isCritical:false, parentId:1 },
+  { id:4,  wbs:'1.3', name:'Permisos y licencias',      start:'2026-02-10', end:'2026-02-28', prog:100, isParent:false, depth:1, isCritical:false, parentId:1 },
+  { id:5,  wbs:'2',   name:'Construcción',              start:'2026-03-03', end:'2026-06-06', prog:18,  isParent:true, depth:0, isCritical:true },
+  { id:6,  wbs:'2.1', name:'Cimentación',               start:'2026-03-03', end:'2026-03-28', prog:60,  isParent:false, depth:1, isCritical:true, parentId:5, slack:0 },
+  { id:7,  wbs:'2.2', name:'Estructura metálica',       start:'2026-03-31', end:'2026-05-02', prog:0,   isParent:false, depth:1, isCritical:true, parentId:5, slack:0 },
+  { id:8,  wbs:'2.3', name:'Instalaciones eléctricas',  start:'2026-04-07', end:'2026-05-09', prog:0,   isParent:false, depth:1, isCritical:false, parentId:5, slack:3 },
+  { id:9,  wbs:'2.4', name:'Techado y fachada',         start:'2026-05-05', end:'2026-06-06', prog:0,   isParent:false, depth:1, isCritical:true, parentId:5, slack:0 },
+  { id:10, wbs:'3',   name:'Equipamiento',              start:'2026-06-09', end:'2026-07-11', prog:0,   isParent:true, depth:0, isCritical:false },
+  { id:11, wbs:'3.1', name:'Equipos industriales',      start:'2026-06-09', end:'2026-06-27', prog:0,   isParent:false, depth:1, isCritical:false, parentId:10, slack:5 },
+  { id:12, wbs:'3.2', name:'Pruebas y calibración',     start:'2026-06-30', end:'2026-07-11', prog:0,   isParent:false, depth:1, isCritical:true, parentId:10, slack:0 },
+  { id:13, wbs:'4',   name:'Entrega Final',             start:'2026-07-14', end:'2026-07-14', prog:0,   isParent:false, depth:0, isCritical:true, isMilestone:true },
+];
+
+// ══════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════
+let selectedId    = null;
+let showCritical  = false;
+let zoom          = 100;
+let viewMode      = 'MES';
+let density       = 'normal';
+let filterText    = '';
+let collapsed     = {};
+let scrollLock    = false;
+
+const ROW_H_MAP = { compact: 30, normal: 38, loose: 50 };
+const getRowH   = () => ROW_H_MAP[density];
+
+// ══════════════════════════════════════════════════════════
+// GANTT GEOMETRY
+// ══════════════════════════════════════════════════════════
+function getScale() {
+  const bases = { DÍA: 40, SEM: 18, MES: 9, TRIM: 3.5, AÑO: 1.4 };
+  return (bases[viewMode] ?? 9) * (zoom / 100);
+}
+
+function getProjectStart() {
+  const dates = tasks.flatMap(t => [t.start, t.end]).map(d => new Date(d + 'T12:00:00').getTime());
+  const min = Math.min(...dates);
+  const d = new Date(min);
+  d.setDate(d.getDate() - 14);
+  d.setDate(1);
+  return d;
+}
+
+function dateToX(dateStr, projStart, scale) {
+  const d = new Date(dateStr + 'T12:00:00');
+  const diffMs = d.getTime() - projStart.getTime();
+  return Math.floor(diffMs / 86400000) * scale;
+}
+
+function buildTimeAxis(projStart, scale) {
+  const days = Math.ceil(600 / scale) + 60;
+  return Array.from({ length: days }, (_, i) => {
+    const d = new Date(projStart);
+    d.setDate(d.getDate() + i);
+    return { x: i * scale, date: d };
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+// VISIBLE TASKS (filter + collapse)
+// ══════════════════════════════════════════════════════════
+function getVisibleTasks() {
+  return tasks.filter(t => {
+    if (filterText) {
+      if (!t.name.toLowerCase().includes(filterText.toLowerCase())) return false;
+    }
+    if (t.parentId) {
+      let pid = t.parentId;
+      while (pid) {
+        if (collapsed[pid]) return false;
+        const parent = tasks.find(x => x.id === pid);
+        pid = parent ? parent.parentId : null;
+      }
+    }
+    return true;
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+// RENDER TABLE
+// ══════════════════════════════════════════════════════════
+function renderTable() {
+  const tbody    = document.getElementById('table-body');
+  const visible  = getVisibleTasks();
+  const rowH     = getRowH();
+  tbody.innerHTML = '';
+
+  visible.forEach((t, i) => {
+    const row = document.createElement('div');
+    row.className = 'task-row' +
+      (t.id === selectedId ? ' selected' : '') +
+      (t.isCritical && showCritical && !t.isParent ? ' critical' : '');
+    row.style.height = rowH + 'px';
+    row.onclick = () => { selectedId = t.id === selectedId ? null : t.id; renderAll(); };
+
+    // WBS
+    const wbsCell = document.createElement('div');
+    wbsCell.className = 'td-cell';
+    wbsCell.style.width = '30px';
+    wbsCell.style.justifyContent = 'center';
+    wbsCell.style.fontSize = '9px';
+    wbsCell.style.fontWeight = '700';
+    wbsCell.style.color = t.id === selectedId ? '#6366F1' : '#D1D5DB';
+    wbsCell.textContent = i + 1;
+    row.appendChild(wbsCell);
+
+    // Name
+    const nameCell = document.createElement('div');
+    nameCell.className = 'td-cell';
+    nameCell.style.flex = '1';
+    nameCell.style.minWidth = '0';
+    nameCell.style.paddingLeft = (10 + t.depth * 16) + 'px';
+
+    const nameInner = document.createElement('div');
+    nameInner.className = 'task-name-cell';
+
+    if (t.isParent) {
+      const arrow = document.createElement('button');
+      arrow.className = 'collapse-arrow' + (collapsed[t.id] ? '' : ' open');
+      arrow.textContent = '▶';
+      arrow.onclick = (e) => { e.stopPropagation(); collapsed[t.id] = !collapsed[t.id]; renderAll(); };
+      nameInner.appendChild(arrow);
+    } else if (t.isMilestone) {
+      const dia = document.createElement('span');
+      dia.className = 'diamond';
+      dia.textContent = '💎';
+      nameInner.appendChild(dia);
+    } else {
+      const dot = document.createElement('span');
+      dot.className = 'dot';
+      nameInner.appendChild(dot);
+    }
+
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'task-name-text ' + (t.isParent ? 'parent' : 'normal') +
+      (t.isCritical && showCritical && !t.isParent ? ' critical' : '');
+    nameSpan.textContent = t.name;
+    nameSpan.title = t.name;
+    nameInner.appendChild(nameSpan);
+
+    if (t.isCritical && showCritical && !t.isParent && !t.isMilestone) {
+      const cr = document.createElement('span');
+      cr.className = 'cr-badge';
+      cr.textContent = 'CR';
+      nameInner.appendChild(cr);
+    }
+
+    nameCell.appendChild(nameInner);
+    row.appendChild(nameCell);
+
+    // Duration
+    const dur = t.isMilestone ? '—' :
+      Math.round((new Date(t.end + 'T12:00:00') - new Date(t.start + 'T12:00:00')) / 86400000) + 'd';
+    const durCell = mkCell(dur, '80px', '#374151');
+    row.appendChild(durCell);
+
+    // Dates
+    row.appendChild(mkCell(t.start, '92px', '#6B7280', '11px'));
+    row.appendChild(mkCell(t.end,   '90px', '#6B7280', '11px'));
+
+    // Progress
+    const progCell = document.createElement('div');
+    progCell.className = 'td-cell';
+    progCell.style.width = '38px';
+    progCell.style.justifyContent = 'center';
+    progCell.style.fontWeight = '700';
+    progCell.style.fontSize = '11px';
+    progCell.style.color = t.isMilestone ? '#F59E0B' : t.prog === 100 ? '#059669' : t.prog > 0 ? '#374151' : '#9CA3AF';
+    progCell.textContent = t.isMilestone ? '⬦' : t.prog + '%';
+    row.appendChild(progCell);
+
+    tbody.appendChild(row);
+
+    // Tooltip on hover
+    row.onmouseenter = (e) => showTooltip(e, t);
+    row.onmouseleave = hideTooltip;
+  });
+}
+
+function mkCell(text, width, color, fontSize) {
+  const c = document.createElement('div');
+  c.className = 'td-cell';
+  c.style.width = width;
+  c.style.color = color || '#374151';
+  if (fontSize) c.style.fontSize = fontSize;
+  c.textContent = text;
+  return c;
+}
+
+// ══════════════════════════════════════════════════════════
+// RENDER GANTT SVG
+// ══════════════════════════════════════════════════════════
+function renderGantt() {
+  const container = document.getElementById('gantt-scroll');
+  const scale     = getScale();
+  const rowH      = getRowH();
+  const projStart = getProjectStart();
+  const axis      = buildTimeAxis(projStart, scale);
+  const visible   = getVisibleTasks();
+  const svgW      = axis.length * scale;
+  const HEADER_H  = 44;
+  const svgH      = HEADER_H + visible.length * rowH + 20;
+
+  const todayX = dateToX(TODAY, projStart, scale);
+
+  // Build SVG
+  const NS = 'http://www.w3.org/2000/svg';
+
+  // Recreate container content
+  container.innerHTML = '';
+
+  // STICKY HEADER DIV
+  const stickyDiv = document.createElement('div');
+  stickyDiv.style.cssText = `
+    position:sticky; top:0; left:0; z-index:10;
+    width:${svgW}px; height:${HEADER_H}px;
+    margin-bottom:-${HEADER_H}px;
+    background:#F8FAFC;
+    border-bottom:1px solid #D1D5DB;
+    pointer-events:none; overflow:hidden;
+  `;
+  const hdrSvg = document.createElementNS(NS, 'svg');
+  hdrSvg.setAttribute('width', svgW);
+  hdrSvg.setAttribute('height', HEADER_H);
+  hdrSvg.style.display = 'block';
+  buildHeaderSVG(hdrSvg, axis, scale, svgW, HEADER_H, todayX);
+  stickyDiv.appendChild(hdrSvg);
+  container.appendChild(stickyDiv);
+
+  // MAIN SVG
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('width', svgW);
+  svg.setAttribute('height', svgH);
+  svg.style.display = 'block';
+  svg.style.shapeRendering = 'geometricPrecision';
+
+  // Defs
+  const defs = document.createElementNS(NS, 'defs');
+  defs.innerHTML = `
+    <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#94A3B8"/>
+    </marker>
+    <marker id="arr-red" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#EF4444"/>
+    </marker>
+  `;
+  svg.appendChild(defs);
+
+  // Header in SVG (visible at top before sticky kicks in)
+  const headerG = document.createElementNS(NS, 'g');
+  buildHeaderSVG(headerG, axis, scale, svgW, HEADER_H, todayX);
+  svg.appendChild(headerG);
+
+  // Grid
+  const gridG = document.createElementNS(NS, 'g');
+  axis.forEach((tick, i) => {
+    const isWknd = tick.date.getDay() === 0 || tick.date.getDay() === 6;
+    if ((viewMode === 'DÍA' || viewMode === 'SEM') && isWknd) {
+      const r = mke(NS, 'rect', { x: tick.x, y: HEADER_H, width: scale, height: svgH - HEADER_H, fill: '#F8FAFC' });
+      gridG.appendChild(r);
+    } else {
+      const l = mke(NS, 'line', { x1: tick.x, y1: HEADER_H, x2: tick.x, y2: svgH, stroke: '#F1F5F9', 'stroke-width': 1 });
+      gridG.appendChild(l);
+    }
+  });
+  visible.forEach((_, i) => {
+    const l = mke(NS, 'line', { x1: 0, y1: HEADER_H + i * rowH, x2: svgW, y2: HEADER_H + i * rowH, stroke: '#F1F5F9', 'stroke-width': 1 });
+    gridG.appendChild(l);
+  });
+  svg.appendChild(gridG);
+
+  // Today line
+  if (todayX > 0 && todayX < svgW) {
+    const tl = mke(NS, 'line', { x1: todayX, y1: HEADER_H, x2: todayX, y2: svgH, stroke: '#F59E0B', 'stroke-width': 1.5, 'stroke-dasharray': '4 3', opacity: 0.8 });
+    svg.appendChild(tl);
+  }
+
+  // Bars
+  const barsG = document.createElementNS(NS, 'g');
+  visible.forEach((t, i) => {
+    const x    = dateToX(t.start, projStart, scale);
+    const xEnd = dateToX(t.end, projStart, scale) + scale;
+    const w    = Math.max(scale * 0.5, xEnd - x);
+    const barH = Math.round(rowH * 0.5);
+    const y0   = HEADER_H + i * rowH;
+    const yBar = y0 + (rowH - barH) / 2;
+    const cx   = x + w / 2;
+    const cy   = y0 + rowH / 2;
+    const isCr = showCritical && t.isCritical;
+    const isSel = t.id === selectedId;
+
+    // Row hover highlight
+    if (isSel) {
+      const hl = mke(NS, 'rect', { x: 0, y: y0, width: svgW, height: rowH, fill: 'rgba(99,102,241,0.06)' });
+      barsG.appendChild(hl);
+    }
+
+    if (t.isMilestone) {
+      const r = Math.round(rowH * 0.28);
+      const color = isCr ? '#EF4444' : '#F59E0B';
+      const dia = mke(NS, 'polygon', {
+        points: `${cx},${cy - r} ${cx + r},${cy} ${cx},${cy + r} ${cx - r},${cy}`,
+        fill: color
+      });
+      barsG.appendChild(dia);
+      const label = mke(NS, 'text', { x: cx + r + 6, y: cy + 4, 'font-size': 11, fill: '#374151', 'font-weight': 500 });
+      label.textContent = t.name;
+      barsG.appendChild(label);
+      return;
+    }
+
+    if (t.isParent) {
+      const sumH = Math.round(rowH * 0.35);
+      const sy   = y0 + (rowH - sumH) / 2;
+      const fc   = isCr ? '#EF4444' : '#334155';
+      const bg   = mke(NS, 'rect', { x, y: sy, width: w, height: sumH, fill: fc, rx: 2 });
+      barsG.appendChild(bg);
+      if (t.prog > 0) {
+        const fg = mke(NS, 'rect', { x, y: sy, width: w * (t.prog / 100), height: sumH, fill: isCr ? '#FCA5A5' : '#6366F1', rx: 2, opacity: 0.8 });
+        barsG.appendChild(fg);
+      }
+      // ears
+      barsG.appendChild(mke(NS, 'polygon', { points: `${x},${sy + sumH} ${x + 8},${sy + sumH} ${x},${sy + sumH + 5}`, fill: fc }));
+      barsG.appendChild(mke(NS, 'polygon', { points: `${x + w},${sy + sumH} ${x + w - 8},${sy + sumH} ${x + w},${sy + sumH + 5}`, fill: fc }));
+      if (w > 40) {
+        const pct = mke(NS, 'text', { x: cx, y: sy + sumH / 2 + 4, 'text-anchor': 'middle', 'font-size': 9, fill: 'white', 'font-weight': 'bold' });
+        pct.textContent = t.prog + '%';
+        barsG.appendChild(pct);
+      }
+      return;
+    }
+
+    // Normal bar
+    const fill   = isCr ? '#FEE2E2' : '#E0E7FF';
+    const stroke = isCr ? '#EF4444' : '#6366F1';
+    const pfill  = isCr ? '#EF4444' : '#6366F1';
+
+    const bg = mke(NS, 'rect', { x, y: yBar, width: w, height: barH, fill, rx: 3, stroke, 'stroke-width': isSel ? 2 : 1.5 });
+    barsG.appendChild(bg);
+    if (t.prog > 0) {
+      const fg = mke(NS, 'rect', { x, y: yBar, width: w * (t.prog / 100), height: barH, fill: pfill, rx: 3, opacity: 0.75 });
+      barsG.appendChild(fg);
+    }
+    if (w > 50 && t.prog > 15) {
+      const lbl = mke(NS, 'text', { x: x + w * (t.prog / 100) / 2, y: yBar + barH / 2 + 4, 'text-anchor': 'middle', 'font-size': 9, fill: 'white', 'font-weight': 'bold', 'pointer-events': 'none' });
+      lbl.textContent = t.prog + '%';
+      barsG.appendChild(lbl);
+    }
+  });
+  svg.appendChild(barsG);
+
+  // Hit areas for tooltip (transparent rects over each bar row)
+  const hitG = document.createElementNS(NS, 'g');
+  visible.forEach((t, i) => {
+    const x    = dateToX(t.start, projStart, scale);
+    const xEnd = dateToX(t.end, projStart, scale) + scale;
+    const w    = Math.max(scale * 0.5, xEnd - x);
+    const y0   = HEADER_H + i * rowH;
+    const hit  = mke(NS, 'rect', { x, y: y0, width: w, height: rowH, fill: 'transparent', style: 'cursor:pointer' });
+    hit.addEventListener('mouseenter', (e) => showTooltip(e, t));
+    hit.addEventListener('mouseleave', hideTooltip);
+    hit.addEventListener('click', () => { selectedId = t.id === selectedId ? null : t.id; renderAll(); });
+    hitG.appendChild(hit);
+  });
+  svg.appendChild(hitG);
+
+  container.appendChild(svg);
+}
+
+function buildHeaderSVG(parent, axis, scale, svgW, HEADER_H, todayX) {
+  const NS = 'http://www.w3.org/2000/svg';
+  const rendered = new Set();
+  const fmt = getHeaderFmt();
+
+  // Background
+  const bg = mke(NS, 'rect', { x: 0, y: 0, width: svgW, height: HEADER_H, fill: '#F8FAFC' });
+  parent.appendChild ? parent.appendChild(bg) : parent.innerHTML += bg.outerHTML;
+
+  // Lines
+  parent.appendChild(mke(NS, 'line', { x1: 0, y1: HEADER_H / 2, x2: svgW, y2: HEADER_H / 2, stroke: '#E2E8F0', 'stroke-width': 0.5 }));
+  parent.appendChild(mke(NS, 'line', { x1: 0, y1: HEADER_H, x2: svgW, y2: HEADER_H, stroke: '#D1D5DB', 'stroke-width': 1 }));
+
+  axis.forEach((tick, i) => {
+    const topKey   = fmt.topKey(tick.date);
+    const topLabel = fmt.topFmt(tick.date);
+    if (topLabel && !rendered.has(topKey)) {
+      rendered.add(topKey);
+      const t = mke(NS, 'text', { x: tick.x + 6, y: 14, 'font-size': 10, fill: '#6B7280', 'font-weight': 700 });
+      t.style.textTransform = 'uppercase';
+      t.textContent = topLabel;
+      parent.appendChild(t);
+    }
+
+    const btmLabel = fmt.bottomFmt(tick.date);
+    if (!btmLabel && !fmt.showAll) return;
+    if (fmt.showAll && i % fmt.interval !== 0) return;
+
+    const isWknd  = tick.date.getDay() === 0 || tick.date.getDay() === 6;
+    const isToday = tick.date.toISOString().slice(0, 10) === TODAY;
+
+    if (isToday) {
+      parent.appendChild(mke(NS, 'rect', { x: tick.x, y: HEADER_H / 2, width: scale, height: HEADER_H / 2, fill: '#FEF3C7' }));
+    }
+
+    const btm = mke(NS, 'text', {
+      x: tick.x + (scale > 20 ? scale / 2 : 3),
+      y: HEADER_H - 7,
+      'text-anchor': scale > 20 ? 'middle' : 'start',
+      'font-size': 10,
+      fill: isToday ? '#D97706' : '#374151',
+      'font-weight': isToday ? 700 : 500
+    });
+    btm.textContent = fmt.showAll ? String(tick.date.getDate()) : btmLabel;
+    parent.appendChild(btm);
+  });
+
+  // Today badge
+  if (todayX > 0 && todayX < svgW) {
+    const badge = mke(NS, 'rect', { x: todayX - 16, y: HEADER_H - 17, width: 32, height: 14, rx: 3, fill: '#F59E0B' });
+    parent.appendChild(badge);
+    const lbl = mke(NS, 'text', { x: todayX, y: HEADER_H - 7, 'text-anchor': 'middle', 'font-size': 8, fill: 'white', 'font-weight': 'bold' });
+    lbl.textContent = 'HOY';
+    parent.appendChild(lbl);
+  }
+}
+
+function getHeaderFmt() {
+  const scale = getScale();
+  const interval = Math.max(1, Math.ceil(40 / scale));
+  if (viewMode === 'DÍA') return {
+    interval,
+    topFmt:    d => d.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' }),
+    topKey:    d => `${d.getFullYear()}-${d.getMonth()}`,
+    bottomFmt: d => String(d.getDate()),
+    showAll: true,
+  };
+  if (viewMode === 'SEM') return {
+    interval,
+    topFmt:    d => d.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' }),
+    topKey:    d => `${d.getFullYear()}-${d.getMonth()}`,
+    bottomFmt: d => d.getDay() === 1 ? d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short' }) : '',
+    showAll: false,
+  };
+  if (viewMode === 'MES') return {
+    interval,
+    topFmt:    d => String(d.getFullYear()),
+    topKey:    d => String(d.getFullYear()),
+    bottomFmt: d => d.getDate() === 1 ? d.toLocaleDateString('es-MX', { month: 'short' }).toUpperCase() : '',
+    showAll: false,
+  };
+  if (viewMode === 'TRIM') return {
+    interval,
+    topFmt:    d => String(d.getFullYear()),
+    topKey:    d => String(d.getFullYear()),
+    bottomFmt: d => (d.getDate() === 1 && d.getMonth() % 3 === 0) ? `T${Math.floor(d.getMonth() / 3) + 1}` : '',
+    showAll: false,
+  };
+  return {
+    interval,
+    topFmt:    () => '',
+    topKey:    d => String(d.getFullYear()),
+    bottomFmt: d => (d.getMonth() === 0 && d.getDate() === 1) ? String(d.getFullYear()) : '',
+    showAll: false,
+  };
+}
+
+function mke(ns, tag, attrs) {
+  const el = document.createElementNS(ns, tag);
+  Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+  return el;
+}
+
+// ══════════════════════════════════════════════════════════
+// TOOLTIP
+// ══════════════════════════════════════════════════════════
+function showTooltip(e, t) {
+  const tip = document.getElementById('tooltip');
+  document.getElementById('tt-name').textContent = (t.isMilestone ? '💎 ' : '') + t.name;
+  const grid = document.getElementById('tt-grid');
+  const rows = [
+    ['Inicio:', t.start],
+    ['Fin:', t.end],
+    ['Duración:', t.isMilestone ? '—' : (Math.round((new Date(t.end + 'T12:00:00') - new Date(t.start + 'T12:00:00')) / 86400000)) + ' días'],
+    ['Avance:', t.prog + '%'],
+  ];
+  if (typeof t.slack === 'number') rows.push(['Holgura:', t.slack + 'd']);
+  if (t.isCritical) rows.push(['Ruta:', '🔴 Crítica']);
+  grid.innerHTML = rows.map(([k, v]) => `<span>${k}</span><span class="tt-val">${v}</span>`).join('');
+  tip.style.display = 'block';
+  positionTooltip(e);
+}
+
+function positionTooltip(e) {
+  const tip = document.getElementById('tooltip');
+  tip.style.left = (e.clientX + 14) + 'px';
+  tip.style.top  = (e.clientY - 10) + 'px';
+}
+
+function hideTooltip() {
+  document.getElementById('tooltip').style.display = 'none';
+}
+
+document.addEventListener('mousemove', (e) => {
+  if (document.getElementById('tooltip').style.display === 'block') {
+    positionTooltip(e);
+  }
+});
+
+// ══════════════════════════════════════════════════════════
+// SCROLL SYNC
+// ══════════════════════════════════════════════════════════
+function syncScroll(source, el) {
+  if (scrollLock) return;
+  scrollLock = true;
+  const other = source === 'table'
+    ? document.getElementById('gantt-scroll')
+    : document.getElementById('table-body');
+  other.scrollTop = el.scrollTop;
+  requestAnimationFrame(() => { scrollLock = false; });
+}
+
+// ══════════════════════════════════════════════════════════
+// PANEL RESIZER
+// ══════════════════════════════════════════════════════════
+(function() {
+  const resizer = document.getElementById('resizer');
+  const left    = document.getElementById('left-panel');
+  let dragging  = false;
+  let startX    = 0;
+  let startW    = 0;
+
+  resizer.addEventListener('mousedown', (e) => {
+    dragging = true;
+    startX   = e.clientX;
+    startW   = left.offsetWidth;
+    resizer.classList.add('active');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    const newW = Math.max(240, Math.min(window.innerWidth * 0.75, startW + e.clientX - startX));
+    left.style.width = newW + 'px';
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (!dragging) return;
+    dragging = false;
+    resizer.classList.remove('active');
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  });
+})();
+
+// ══════════════════════════════════════════════════════════
+// CONTROLS
+// ══════════════════════════════════════════════════════════
+function setView(mode, btn) {
+  viewMode = mode;
+  document.querySelectorAll('.vsw-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGantt();
+}
+
+function changeZoom(delta) {
+  zoom = Math.max(30, Math.min(300, zoom + delta));
+  document.getElementById('zoom-display').textContent = zoom + '%';
+  renderGantt();
+}
+
+function setDensity(d, btn) {
+  density = d;
+  document.querySelectorAll('.density-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAll();
+}
+
+function toggleCritical() {
+  showCritical = !showCritical;
+  const btn = document.getElementById('critical-btn');
+  btn.classList.toggle('active', showCritical);
+  renderAll();
+}
+
+function filterTasks(v) {
+  filterText = v;
+  renderAll();
+  updateBadges();
+}
+
+function addTask() {
+  const id   = tasks.length + 1;
+  const wbs  = String(id);
+  tasks.push({
+    id, wbs, name: 'Nueva Tarea', depth: 0,
+    start: TODAY, end: addDaysStr(TODAY, 5), prog: 0, isParent: false, isCritical: false
+  });
+  renderAll();
+  updateBadges();
+}
+
+function addMilestone() {
+  const id = tasks.length + 1;
+  tasks.push({
+    id, wbs: String(id), name: 'Nuevo Hito', depth: 0,
+    start: addDaysStr(TODAY, 30), end: addDaysStr(TODAY, 30),
+    prog: 0, isMilestone: true, isParent: false, isCritical: false
+  });
+  renderAll();
+  updateBadges();
+}
+
+function addColumn() {
+  alert('En la versión completa puedes añadir columnas personalizadas: costos, responsable, notas, etc.');
+}
+
+function saveBaseline() {
+  alert('Línea base guardada. En la versión completa puedes comparar avance real vs. línea base con barras de color naranja.');
+}
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+  else document.exitFullscreen();
+}
+
+function addDaysStr(dateStr, days) {
+  const d = new Date(dateStr + 'T12:00:00');
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+function updateBadges() {
+  const visible = getVisibleTasks();
+  document.getElementById('task-count-badge').textContent = visible.length;
+  document.getElementById('done-count-badge').textContent = visible.filter(t => t.prog === 100).length;
+}
+
+// ══════════════════════════════════════════════════════════
+// CSV EXPORT
+// ══════════════════════════════════════════════════════════
+document.getElementById('csv-btn').addEventListener('click', () => {
+  const header = 'WBS,Nombre,Inicio,Fin,Progreso,Crítica';
+  const rows   = tasks.map(t =>
+    [t.wbs, `"${t.name}"`, t.start, t.end, t.prog + '%', t.isCritical ? 'Sí' : 'No'].join(',')
+  );
+  const csv  = [header, ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'ttnag-cronograma.csv'; a.click();
+  URL.revokeObjectURL(url);
+});
+
+// ══════════════════════════════════════════════════════════
+// RENDER ALL
+// ══════════════════════════════════════════════════════════
+function renderAll() {
+  renderTable();
+  renderGantt();
+  updateBadges();
+}
+
+// Init
+renderAll();
+
+// Scroll to today on load
+setTimeout(() => {
+  const gs = document.getElementById('gantt-scroll');
+  const projStart = getProjectStart();
+  const todayX    = dateToX(TODAY, projStart, getScale());
+  gs.scrollLeft = Math.max(0, todayX - 200);
+}, 100);
+</script>
+</body>
+</html>
