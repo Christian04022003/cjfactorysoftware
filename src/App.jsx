@@ -639,22 +639,22 @@ function Why() {
 }
 
 // ─── STACK ───────────────────────────────────
-function Stack() {
-  const chips = ["React", "React Native", "TypeScript", "Docker", "AWS", "PostgreSQL", "PHP", "Java", "iOS App Store", "Google Play Store"];
-  return (
-    <div className="bg-[#0A0A0A] border-t border-[#1A1A1A] py-[48px] md:py-[56px]">
-      <div className="max-w-[1140px] mx-auto px-5 lg:px-8">
-        <div className="text-[11px] font-bold tracking-[3px] text-[#D4A017] uppercase mb-[12px]">Infraestructura tecnológica</div>
-        <p className="text-[13px] text-[#666]">Para quienes quieran conocer los detalles técnicos detrás de nuestros sistemas.</p>
-        <div className="flex flex-wrap gap-[8px] mt-[14px]">
-          {chips.map((c) => (
-            <span key={c} className="text-[12px] font-semibold px-[14px] py-[6px] rounded-full bg-[#141414] border border-[#222] text-[#777] transition-all duration-200 hover:border-[#D4A017]/30 hover:text-[#D4A017]">{c}</span>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
+// function Stack() {
+//   const chips = ["React", "React Native", "TypeScript", "Docker", "AWS", "PostgreSQL", "PHP", "Java", "iOS App Store", "Google Play Store"];
+//   return (
+//     <div className="bg-[#0A0A0A] border-t border-[#1A1A1A] py-[48px] md:py-[56px]">
+//       <div className="max-w-[1140px] mx-auto px-5 lg:px-8">
+//         <div className="text-[11px] font-bold tracking-[3px] text-[#D4A017] uppercase mb-[12px]">Infraestructura tecnológica</div>
+//         <p className="text-[13px] text-[#666]">Para quienes quieran conocer los detalles técnicos detrás de nuestros sistemas.</p>
+//         <div className="flex flex-wrap gap-[8px] mt-[14px]">
+//           {chips.map((c) => (
+//             <span key={c} className="text-[12px] font-semibold px-[14px] py-[6px] rounded-full bg-[#141414] border border-[#222] text-[#777] transition-all duration-200 hover:border-[#D4A017]/30 hover:text-[#D4A017]">{c}</span>
+//           ))}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
 
 // ─── CTA ─────────────────────────────────────
 function CTA() {
@@ -674,7 +674,7 @@ function CTA() {
             <div>
               <div className="flex items-center gap-[10px] mb-[6px]">
                 <span className="text-[20px]">📧</span>
-                <span className="text-[14px] md:text-[15px] font-bold text-[#EEE]">Escríbenos por correo</span>
+                <span className="text-[14px] md:text-[15px] font-bold text-[#EEE]">Escríbenos por correo: cjfactoryas@gmail.com</span>
               </div>
               <p className="text-[13px] text-[#555] mb-[24px]">Te respondemos en menos de 24 horas hábiles.</p>
               <div className="flex flex-col gap-[12px] mb-[28px]">
@@ -757,7 +757,7 @@ export default function App() {
       <Portfolio onOpenTTNAG={() => setShowTTNAG(true)} />
       {/* <GanttDemo onOpenTTNAG={() => setShowTTNAG(true)} /> */}
       <Why />
-      <Stack />
+      {/* <Stack /> */}
       <CTA />
       <Footer />
     </div>
