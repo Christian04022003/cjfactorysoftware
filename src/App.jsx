@@ -254,9 +254,8 @@ function Portfolio() {
       url: "https://apps.apple.com/mx/app/macro-scan/id6748467443",
       isExternal: true,
       prob: "Registrar lo que se come es tedioso. La mayoría abandona sus planes por falta de seguimiento constante.",
-      ben: "Escanea el código de barras de cualquier alimento y los macros se registran al instante. Con más de 40 recetas y calculadora personalizada.",
+      ben: "Escanea el código QR y los macros se registran al instante. Con más de 40 recetas y calculadora personalizada.",
       tags: [
-        { l: "Escáner de código de barras", c: "bg-[#22C55E]/10 text-[#22C55E] border border-[#22C55E]/20" },
         { l: "+40 Recetas", c: "bg-[#22C55E]/10 text-[#22C55E] border border-[#22C55E]/20" },
         { l: "Calculadora de macros", c: "bg-[#22C55E]/10 text-[#22C55E] border border-[#22C55E]/20" },
         { l: "Control de hidratación", c: "bg-[#22C55E]/10 text-[#22C55E] border border-[#22C55E]/20" },
